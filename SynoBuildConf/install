@@ -36,7 +36,8 @@ create_spk(){
 	cp -av PACKAGE_ICON*.PNG $PKG_DIR
 
 	### Generate INFO file
-	./INFO.sh > INFO
+	#./INFO.sh > INFO
+	/source/WireGuard/template/INFO.sh > INFO
 	cp INFO $PKG_DIR/INFO
 
 	### Create the final spk.

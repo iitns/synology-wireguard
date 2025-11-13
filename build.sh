@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 if [ -z ${IS_IN_CONTAINER+x} ]; then
     echo "This script expect to be run inside a docker container" 1>&2
     exit 1
@@ -22,8 +22,10 @@ cd /
 # Make the script quit if there are errors
 set -e
 
-export WIREGUARD_VERSION=$(wget -q https://git.zx2c4.com/wireguard-linux-compat/refs/ -O - | grep -oP '\/wireguard-linux-compat\/tag\/\?h=v\K[.0-9]*' | head -n 1)
-export WIREGUARD_TOOLS_VERSION=$(wget -q https://git.zx2c4.com/wireguard-tools/refs/ -O - | grep -oP '\/wireguard-tools\/tag\/\?h=v\K[.0-9]*' | head -n 1)
+#export WIREGUARD_VERSION=$(wget -q https://git.zx2c4.com/wireguard-linux-compat/refs/ -O - | grep -oP '\/wireguard-linux-compat\/tag\/\?h=v\K[.0-9]*' | head -n 1)
+export WIREGUARD_VERSION="1.0.20220627"
+#export WIREGUARD_TOOLS_VERSION=$(wget -q https://git.zx2c4.com/wireguard-tools/refs/ -O - | grep -oP '\/wireguard-tools\/tag\/\?h=v\K[.0-9]*' | head -n 1)
+export WIREGUARD_TOOLS_VERSION="1.0.20250521"
 export LIBMNL_VERSION=$(wget -q 'https://netfilter.org/projects/libmnl/files/?C=M;O=D' -O - | grep -oP 'a href="libmnl-\K[0-9.]*' | head -n 1 | sed 's/.\{1\}$//')
 
 echo "WireGuard version:        $WIREGUARD_VERSION"
@@ -36,7 +38,7 @@ if [[ ! -d /pkgscripts-ng ]] || [ -z "$(ls -A /pkgscripts-ng)" ]; then
     clone_args=""
     # If the DSM version is 7.0, use the DSM7.0 branch of pkgscripts-ng
     if [[ "$DSM_VER" =~ ^7\.[0-9]+$ ]]; then
-        clone_args="-b DSM7.0"
+        clone_args="-b DSM${DSM_VER}"
         export PRODUCT="DSM"
     fi
     git clone ${clone_args} https://github.com/SynologyOpenSource/pkgscripts-ng
@@ -113,6 +115,7 @@ fi
 
 # Disable quit if errors to allow printing of logfiles
 set +e
+mount -o bind /dev $build_env/dev
 
 # Build packages
 #   -p              package arch
